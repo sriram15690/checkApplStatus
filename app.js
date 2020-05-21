@@ -34,7 +34,10 @@ app.use(function (err, req, res, next) {
   res.render('error');
 });
 
-app.get('/', (req, res) => res.send('Hello World!'));
+app.get('/', (req, res) => {
+  bot.sendMessage(352236943, "hellooo");
+  res.send('Hello World!')
+});
 
 app.get('/checkAppStatus', (req, res) => {
   const puppeteer = require('puppeteer');
@@ -48,7 +51,7 @@ app.get('/checkAppStatus', (req, res) => {
     // await page.click('//*[@id="landingForm"]/div/div[1]/div/div[1]/fieldset/div[2]/div[2]/input')
     // await page.screenshot({path: 'example.png'});
     await page.waitForSelector('.appointment-sec ');
-    await page.screenshot({ path: 'example2.png' });
+    // await page.screenshot({ path: 'example2.png' });
     const searchText = await page.$('.appointment-sec .text-center h1');
     const text = await page.evaluate(
       (searchText) => searchText.textContent,
@@ -57,6 +60,40 @@ app.get('/checkAppStatus', (req, res) => {
     await browser.close();
     console.log(text);
     res.send(text)
+    bot.sendMessage(-409024715, text);
   })();
 });
+
+
+const TelegramBot = require('node-telegram-bot-api');
+
+// replace the value below with the Telegram token you receive from @BotFather
+const token = '1289915224:AAHxORwNE83XyWUTIJT7tJwtl25WvojWymc';
+
+// Create a bot that uses 'polling' to fetch new updates
+const bot = new TelegramBot(token, {polling: true});
+
+// Matches "/echo [whatever]"
+bot.onText(/\/   (.+)/, (msg, match) => {
+  // 'msg' is the received Message from Telegram
+  // 'match' is the result of executing the regexp above on the text content
+  // of the message
+
+  const chatId = msg.chat.id;
+  const resp = match[1]; // the captured "whatever"
+  console.log(msg.chat.id);
+  // send back the matched "whatever" to the chat
+  bot.sendMessage(chatId, resp);
+});
+
+// Listen for any kind of message. There are different kinds of
+// messages.
+bot.on('message', (msg) => {
+  const chatId = msg.chat.id;
+  console.log(msg.chat.id);
+  // send a message to the chat acknowledging receipt of their message
+  bot.sendMessage(-409024715, 'Received your message');
+});
+
+
 module.exports = app;

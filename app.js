@@ -15,7 +15,6 @@ app.listen(PORT, function () {
   console.log('Example app listening on port: ' + PORT);
 });
 
-
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -35,35 +34,46 @@ app.use(function (err, req, res, next) {
 });
 
 app.get('/', (req, res) => {
-  bot.sendMessage(352236943, "hellooo");
-  res.send('Hello World!')
+  bot.sendMessage(352236943, 'hellooo');
+  res.send('Hello World!');
 });
 
 app.get('/checkAppStatus', (req, res) => {
   const puppeteer = require('puppeteer');
 
   (async () => {
-    const browser = await puppeteer.launch();
-    const page = await browser.newPage();
-    await page.goto('https://egov.uscis.gov/casestatus/landing.do');
-    await page.type('#receipt_number', 'LIN2012250494');
-    await page.$eval('#landingForm', (form) => form.submit());
-    // await page.click('//*[@id="landingForm"]/div/div[1]/div/div[1]/fieldset/div[2]/div[2]/input')
-    // await page.screenshot({path: 'example.png'});
-    await page.waitForSelector('.appointment-sec ');
-    // await page.screenshot({ path: 'example2.png' });
-    const searchText = await page.$('.appointment-sec .text-center h1');
-    const text = await page.evaluate(
-      (searchText) => searchText.textContent,
-      searchText
-    );
-    await browser.close();
-    console.log(text);
-    res.send(text)
-    bot.sendMessage(-409024715, text);
+    try {
+      const browser = await puppeteer.launch();
+      const page = await browser.newPage();
+      await page.goto('https://egov.uscis.gov/casestatus/landing.do');
+      await page.type('#receipt_number', 'LIN2012250494');
+      await page.$eval('#landingForm', (form) => form.submit());
+      // await page.click('//*[@id="landingForm"]/div/div[1]/div/div[1]/fieldset/div[2]/div[2]/input')
+      // await page.screenshot({path: 'example.png'});
+      await page.waitForSelector('.appointment-sec ');
+      // await page.screenshot({ path: 'example2.png' });
+      const searchText = await page.$('.appointment-sec .text-center h1');
+      let textMsg = await page.evaluate(
+        (searchText) => searchText.textContent,
+        searchText
+      );
+      await browser.close();
+      console.log(textMsg);
+      res.send(textMsg);
+      notifyAppStatusGrp(textMsg);
+    } catch (e) {
+      console.log('******* Errror ******');
+      console.log(e);
+      const errorText = 'Sorry!! Something went wrong.';
+      notifyAppStatusGrp(errorText);
+      res.send(errorText);
+    }
   })();
 });
 
+const notifyAppStatusGrp = (text) => {
+  bot.sendMessage(-409024715, text);
+};
 
 const TelegramBot = require('node-telegram-bot-api');
 
@@ -71,7 +81,7 @@ const TelegramBot = require('node-telegram-bot-api');
 const token = '1289915224:AAHxORwNE83XyWUTIJT7tJwtl25WvojWymc';
 
 // Create a bot that uses 'polling' to fetch new updates
-const bot = new TelegramBot(token, {polling: true});
+const bot = new TelegramBot(token, { polling: true });
 
 // Matches "/echo [whatever]"
 bot.onText(/\/   (.+)/, (msg, match) => {
@@ -92,8 +102,7 @@ bot.on('message', (msg) => {
   const chatId = msg.chat.id;
   console.log(msg.chat.id);
   // send a message to the chat acknowledging receipt of their message
-  bot.sendMessage(-409024715, 'Received your message');
+  bot.sendMessage(chatId, 'Received your message');
 });
-
 
 module.exports = app;

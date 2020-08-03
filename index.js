@@ -28,7 +28,7 @@ const puppeteerLambda = require('puppeteer-lambda');
   });
   const page = await browser.newPage();
   await page.goto('https://egov.uscis.gov/casestatus/landing.do');
-  await page.type('#receipt_number', 'LIN2012250494');
+  await page.type('#receipt_number', '<Receipt Number>'); // Enter receipt number here.
   await page.$eval('#landingForm', form => form.submit());
   // await page.click('//*[@id="landingForm"]/div/div[1]/div/div[1]/fieldset/div[2]/div[2]/input')
   // await page.screenshot({path: 'example.png'});

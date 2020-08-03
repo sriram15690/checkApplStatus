@@ -34,7 +34,7 @@ app.use(function (err, req, res, next) {
 });
 
 app.get('/', (req, res) => {
-  bot.sendMessage(352236943, 'hellooo');
+  bot.sendMessage(<telegram chatID>, 'hellooo'); // 352236943
   res.send('Hello World!');
 });
 
@@ -46,7 +46,7 @@ app.get('/checkAppStatus', (req, res) => {
       const browser = await puppeteer.launch();
       const page = await browser.newPage();
       await page.goto('https://egov.uscis.gov/casestatus/landing.do');
-      await page.type('#receipt_number', 'LIN2012250494');
+      await page.type('#receipt_number', '<Receipt Number>');
       await page.$eval('#landingForm', (form) => form.submit());
       // await page.click('//*[@id="landingForm"]/div/div[1]/div/div[1]/fieldset/div[2]/div[2]/input')
       // await page.screenshot({path: 'example.png'});
@@ -72,13 +72,13 @@ app.get('/checkAppStatus', (req, res) => {
 });
 
 const notifyAppStatusGrp = (text) => {
-  bot.sendMessage(-409024715, text);
+  bot.sendMessage("<telegram chatID>', text); // Example: -409024715
 };
 
 const TelegramBot = require('node-telegram-bot-api');
 
 // replace the value below with the Telegram token you receive from @BotFather
-const token = '1289915224:AAHxORwNE83XyWUTIJT7tJwtl25WvojWymc';
+const token = '<Token from Telegram BotFather>';
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
